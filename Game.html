@@ -1,0 +1,141 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      canvas {
+        border: 5px solid rgb(80, 78, 78);
+        /* background: url("assets/bg.jpg");
+        background-size: cover; */
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- S1-> Creating canvas for rendering the game -->
+    <canvas id="myCanvas" width="600px" height="400px "> </canvas>
+
+    <script>
+      // S3-> we need something like pen to draw the box in canvas
+      //first we need to fetch the canvas html element in js file
+      let canvas = document.getElementById("myCanvas");
+      console.log(canvas);
+      let drawTool = canvas.getContext("2d");
+      drawTool.fillStyle = "green";
+      drawTool.fillRect(10, 10, 20, 20);
+
+      //we can have the enemy image
+      let enemyImg = new Image();
+      enemyImg.src = "assets/enemyLogo.png";
+      enemyImg.width = 300;
+      enemyImg.heigh = 100;
+
+      let playerImg = new Image();
+      playerImg.src = "assets/playerLogo.png";
+      playerImg.width = 900;
+      playerImg.heigh = 100;
+
+      let gameH = canvas.height;
+      let gamew = canvas.width;
+
+      //S2-> JSON -> represents the box
+      let enemy = {
+        x: 150,
+        y: 150,
+        w: 60,
+        h: 60,
+        speed: 5,
+      };
+
+      //isMoving represents the state
+      let player = {
+        x: 0,
+        y: gameH / 2 - 30,
+        w: 60,
+        h: 60,
+        speed: 5,
+        isMoving: false,
+      };
+
+      //adding mouse event listener
+      canvas.addEventListener("mousedown", function () {
+        player.isMoving = true;
+      });
+
+      canvas.addEventListener("mouseup", function () {
+        player.isMoving = false;
+      });
+      //--------------------S4-> want to define something that will make the game to run continously
+
+      let gameOver = false;
+      //collision function
+      function isColliding(r1, r2) {
+        let side = r1.w;
+        if (Math.abs(r1.x - r2.x) <= side && Math.abs(r1.y - r2.y) <= side)
+          return true;
+
+        return false;
+      }
+
+      //function to draw somthing
+      function draw() {
+        // console.log("draw");
+
+        //first we have to clear the old frame and then draw
+        drawTool.clearRect(0, 0, gameH, gamew);
+
+        // drawTool.fillStyle = "green";
+        drawTool.drawImage(playerImg, player.x, player.y, player.w, player.h);
+        drawTool.drawImage(enemyImg, enemy.x, enemy.y, enemy.w, enemy.h);
+        drawTool.fillStyle = "orange";
+        drawTool.fillText("score  " + player.x, 10, 50);
+      }
+
+      //function to update somthing
+      function update() {
+        //we keeep on updating the position when mouse taps
+        if (player.isMoving == true) {
+          player.x += player.speed;
+        }
+
+        // console.log("update");
+        enemy.y += enemy.speed;
+
+        if (enemy.y == 0 || enemy.y == gameH - enemy.h) enemy.speed *= -1;
+
+        //when collision happens stop the game and make the alert
+        if (isColliding(player, enemy)) {
+          alert("Amul OP LOOSES");
+          gameOver = true;
+        }
+
+        //you win after win you can increase level or do something based on your choice
+        if (player.x > gamew - player.w) {
+          alert("GLOBAL LOOSES BY AMUL OP THE PRO DOMINATOR");
+          gameOver = true;
+        }
+      }
+
+      //function to render/ move it continously
+      function render() {
+        draw();
+        update();
+
+        // one way to continously calling is
+        // render(); -> but the problem is recursion call faster and in 1 second   10^8 calling so will not adopt this method
+        //-> noOfCall will huge makes the application crash
+        //-> previous call will not needed but it will remains in the stack
+        console.log("render");
+        //so there is a fucntion window.requestAnimationFram(render); at 60 fps automatically
+        if (!gameOver) window.requestAnimationFrame(render);
+      }
+
+      render();
+
+      //----------------
+    </script>
+  </body>
+</html>
+
+<!-- further what we can do  -->
+<!-- 1.) can add scoring , more players,  -->
